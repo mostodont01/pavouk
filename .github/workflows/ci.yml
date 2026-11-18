@@ -13,6 +13,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       QT_QPA_PLATFORM: offscreen
     steps:
@@ -28,6 +29,7 @@ jobs:
   windows-exe:
     needs: test
     runs-on: windows-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -40,9 +42,13 @@ jobs:
         run: python -m pytest -q
       - name: Build Pavouk.exe
         run: pyinstaller --noconfirm --onefile --windowed --name Pavouk --add-data "pavouk/Main.qml:pavouk" pavouk/__main__.py
-      - name: Smoke test (--vypis)
-        shell: bash
-        run: cd dist && ./Pavouk.exe --vypis > out.txt; cat out.txt; grep -q "Touchgrass lidi" tymy.txt
+      - name: Smoke test (start the exe, open the window, quit)
+        shell: pwsh
+        timeout-minutes: 3
+        run: |
+          $p = Start-Process -FilePath dist\Pavouk.exe -ArgumentList '--smoke','--stav',"$env:RUNNER_TEMP\smoke.json" -PassThru
+          if (-not $p.WaitForExit(90000)) { $p.Kill(); throw "Pavouk.exe did not exit" }
+          if ($p.ExitCode -ne 0) { throw "Pavouk.exe exited with $($p.ExitCode)" }
       - uses: actions/upload-artifact@v4
         with:
           name: Pavouk-windows
