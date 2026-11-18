@@ -1,0 +1,21 @@
+[project]
+name = "pavouk"
+version = "1.0.0"
+description = "Clickable tournament bracket (PySide6 + QML)"
+requires-python = ">=3.10"
+dependencies = ["PySide6-Essentials>=6.7"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-qt", "pyinstaller"]
+
+[project.scripts]
+pavouk = "pavouk.app:main"
+
+[tool.setuptools]
+packages = ["pavouk"]
+
+[tool.setuptools.package-data]
+pavouk = ["*.qml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

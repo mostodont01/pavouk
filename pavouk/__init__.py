@@ -1,0 +1,1 @@
+"""Pavouk: clickable tournament bracket."""
